@@ -11,11 +11,13 @@ on Radix.
 - **Browse and search** — full-text search across titles, summaries, prompt
   bodies, categories, and tags. Every search term must match (AND), so adding
   words narrows rather than widens.
-- **Filter and sort** — filter by category, by any combination of tags, or by
-  favorites; sort by recently updated, oldest, title, or most copied.
+- **Filter and sort** — filter by category, difficulty, any combination of
+  tags, or favorites; sort by recently updated, oldest, title, or most copied.
 - **Create, edit, duplicate, delete** — with validation and a confirmation step
   before anything is removed.
-- **Variables** — wrap a reusable slot in double braces (`{{topic}}`). The
+- **Variables** — wrap a reusable slot in double braces: a short name
+  (`{{topic}}`) or a descriptive instruction
+  (`{{attributes with types, required/optional, invariants}}`). The
   detail view lists every variable it finds, lets you fill them in, and shows a
   live preview. Copying takes the filled-in version; unfilled slots stay as
   placeholders so nothing silently disappears.
@@ -33,8 +35,13 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
-The library is seeded with ten prompts on first run. Everything you change after
-that is written to `localStorage` under `prompt-library.prompts.v1`.
+The library ships with the **Fable-5 Web Development Prompt Library — 272
+prompts across 16 categories** (`src/data/prompt-library.json`, kept verbatim;
+its design and evaluation reports live in [`docs/`](./docs/README.md)).
+Everything you change after that is written to `localStorage` under
+`prompt-library.prompts.v1`. When a new app version ships more prompts, they
+are merged into an existing stored library once (tracked by
+`prompt-library.seedVersion`); your own records always win.
 
 ## Scripts
 

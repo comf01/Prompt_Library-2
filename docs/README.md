@@ -12,15 +12,14 @@ They are kept verbatim as background and design reference for this app.
 
 ## Scope notes
 
-- **The evaluation report grades the DevKit's 272-prompt library, not the seed
-  prompts shipped with this app.** This repository currently contains a
-  local-first prompt library SPA with 10 seed prompts.
-- The reports reference data artifacts that are **not in this repository**:
-  `prompt-library.json` (the 272 prompts), `capabilities.json`,
-  `dev-opportunities.json`, the `research/` files, and the 30 evaluation
-  transcripts. Importing the 272 prompts into this app requires
-  `prompt-library.json`; the app's JSON import accepts records that carry at
-  least a `title` or `content` field (see `src/lib/storage.ts`).
+- **The 272-prompt library these reports describe now ships with this app**:
+  `src/data/prompt-library.json` is the verbatim `prompt-library.json` payload
+  (v1.0.0, generated 2026-08-19), mapped onto the app's schema in
+  `src/data/seed-prompts.ts`. The evaluation report grades exactly this
+  library.
+- Other data artifacts the reports reference are still **not in this
+  repository**: `capabilities.json`, `dev-opportunities.json`, the `research/`
+  files, and the 30 evaluation transcripts.
 - The final report describes a different architecture (server, database, API
   proxy) than this app, which is deliberately client-only with `localStorage`
   persistence.

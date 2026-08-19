@@ -24,13 +24,19 @@ import { LibraryHeader } from '@/sections/library-header'
 import { PromptCard } from '@/sections/prompt-card'
 import { PromptDetailDialog } from '@/sections/prompt-detail-dialog'
 import { PromptEditorDialog } from '@/sections/prompt-editor-dialog'
-import type { Prompt, PromptDraft, SortOption } from '@/types/prompt'
+import type {
+  Difficulty,
+  Prompt,
+  PromptDraft,
+  SortOption,
+} from '@/types/prompt'
 
 export default function App() {
   const {
     prompts,
     categories,
     tags,
+    difficulties,
     createPrompt,
     updatePrompt,
     deletePrompt,
@@ -43,6 +49,7 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<string | null>(null)
   const [activeTags, setActiveTags] = useState<string[]>([])
+  const [difficulty, setDifficulty] = useState<Difficulty | null>(null)
   const [favoritesOnly, setFavoritesOnly] = useState(false)
   const [sort, setSort] = useState<SortOption>('recent')
 
@@ -61,11 +68,12 @@ export default function App() {
           query,
           category,
           tags: activeTags,
+          difficulty,
           favoritesOnly,
         }),
         sort,
       ),
-    [prompts, query, category, activeTags, favoritesOnly, sort],
+    [prompts, query, category, activeTags, difficulty, favoritesOnly, sort],
   )
 
   const editingPrompt = useMemo(
@@ -97,6 +105,7 @@ export default function App() {
     setQuery('')
     setCategory(null)
     setActiveTags([])
+    setDifficulty(null)
     setFavoritesOnly(false)
   }, [])
 
@@ -177,6 +186,7 @@ export default function App() {
     query.trim() !== '' ||
     category !== null ||
     activeTags.length > 0 ||
+    difficulty !== null ||
     favoritesOnly
 
   return (
@@ -197,13 +207,16 @@ export default function App() {
         <FilterSidebar
           categories={categories}
           tags={tags}
+          difficulties={difficulties}
           activeCategory={category}
           activeTags={activeTags}
+          activeDifficulty={difficulty}
           favoritesOnly={favoritesOnly}
           favoriteCount={favoriteCount}
           total={prompts.length}
           onCategoryChange={setCategory}
           onTagToggle={toggleTag}
+          onDifficultyChange={setDifficulty}
           onFavoritesToggle={() => setFavoritesOnly((value) => !value)}
           onReset={resetFilters}
         />

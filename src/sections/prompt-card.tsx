@@ -135,6 +135,11 @@ export function PromptCard({
           <Badge variant="outline" className="font-normal">
             {prompt.category}
           </Badge>
+          {prompt.difficulty && (
+            <Badge variant="outline" className="font-normal capitalize">
+              {prompt.difficulty}
+            </Badge>
+          )}
           {prompt.tags.map((tag) => (
             <button key={tag} type="button" onClick={() => onTagClick(tag)}>
               <Badge

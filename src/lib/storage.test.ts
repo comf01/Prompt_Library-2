@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import {
+  SEED_VERSION,
+  SEED_VERSION_KEY,
   STORAGE_KEY,
   coercePrompt,
   loadPrompts,
@@ -46,6 +48,35 @@ describe('coercePrompt', () => {
     expect(coercePrompt({ title: '   ', content: '  ' })).toBeNull()
     expect(coercePrompt('nope')).toBeNull()
     expect(coercePrompt(null)).toBeNull()
+  })
+
+  it('accepts the raw library schema (prompt / fable5Techniques fields)', () => {
+    const prompt = coercePrompt({
+      id: 'API-001',
+      title: 'REST Resource Endpoint Set Design',
+      category: 'APIs',
+      subcategory: 'REST endpoint design',
+      description: 'Design a CRUD endpoint set.',
+      prompt: '<task>...</task>',
+      tags: ['rest', 'crud'],
+      difficulty: 'intermediate',
+      expectedOutput: 'An endpoint table.',
+      fable5Techniques: ['output-contract', 'negative-constraints'],
+    })
+    expect(prompt?.content).toBe('<task>...</task>')
+    expect(prompt?.subcategory).toBe('REST endpoint design')
+    expect(prompt?.difficulty).toBe('intermediate')
+    expect(prompt?.expectedOutput).toBe('An endpoint table.')
+    expect(prompt?.techniques).toEqual([
+      'output-contract',
+      'negative-constraints',
+    ])
+  })
+
+  it('drops an unknown difficulty value instead of storing it', () => {
+    expect(
+      coercePrompt({ ...validPrompt, difficulty: 'impossible' })?.difficulty,
+    ).toBeUndefined()
   })
 
   it('clamps a nonsensical copy count', () => {
@@ -95,6 +126,29 @@ describe('localStorage round trip', () => {
   it('falls back to the seed when the stored payload is corrupt', () => {
     localStorage.setItem(STORAGE_KEY, '{ not json')
     expect(loadPrompts()).toEqual(SEED_PROMPTS)
+  })
+
+  it('merges new seed prompts into a pre-marker stored library once', () => {
+    // A library saved by an older app version: no seed-version marker.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([validPrompt]))
+    const migrated = loadPrompts()
+    expect(migrated).toHaveLength(1 + SEED_PROMPTS.length)
+    expect(migrated[0].id).toBe(validPrompt.id)
+
+    // Saving stamps the marker; deletions now stick across reloads.
+    savePrompts(migrated.slice(0, 5))
+    expect(localStorage.getItem(SEED_VERSION_KEY)).toBe(String(SEED_VERSION))
+    expect(loadPrompts()).toHaveLength(5)
+  })
+
+  it('does not overwrite a user-edited prompt that shares a seed id', () => {
+    const edited = { ...validPrompt, id: SEED_PROMPTS[0].id, title: 'Mine' }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([edited]))
+    const migrated = loadPrompts()
+    expect(migrated.find((p) => p.id === SEED_PROMPTS[0].id)?.title).toBe(
+      'Mine',
+    )
+    expect(migrated).toHaveLength(SEED_PROMPTS.length)
   })
 })
 

@@ -5,10 +5,14 @@ import type {
   PromptFilters,
   SortOption,
 } from '@/types/prompt'
-import { UNCATEGORIZED } from '@/types/prompt'
+import { DIFFICULTIES, UNCATEGORIZED } from '@/types/prompt'
 
-/** Matches `{{ variable_name }}` placeholders inside a prompt body. */
-const VARIABLE_PATTERN = /\{\{\s*([\w.-]+)\s*\}\}/g
+/**
+ * Matches `{{placeholder}}` slots inside a prompt body — both short names
+ * (`{{resource}}`) and descriptive fill-in instructions
+ * (`{{attributes with types, required/optional, invariants}}`).
+ */
+const VARIABLE_PATTERN = /\{\{\s*([^{}\s][^{}]*?)\s*\}\}/g
 
 export function createId(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -61,6 +65,8 @@ function matchesQuery(prompt: Prompt, query: string): boolean {
     prompt.description,
     prompt.content,
     prompt.category,
+    prompt.subcategory ?? '',
+    prompt.difficulty ?? '',
     prompt.tags.join(' '),
   ]
     .join(' ')
@@ -75,6 +81,9 @@ export function filterPrompts(
   return prompts.filter((prompt) => {
     if (filters.favoritesOnly && !prompt.favorite) return false
     if (filters.category && prompt.category !== filters.category) return false
+    if (filters.difficulty && prompt.difficulty !== filters.difficulty) {
+      return false
+    }
     if (
       filters.tags.length > 0 &&
       !filters.tags.every((tag) => prompt.tags.includes(tag))
@@ -122,6 +131,13 @@ export function collectTags(prompts: Prompt[]): Facet[] {
   return toFacets(prompts.flatMap((prompt) => prompt.tags))
 }
 
+export function collectDifficulties(prompts: Prompt[]): Facet[] {
+  return DIFFICULTIES.map((difficulty) => ({
+    value: difficulty,
+    count: prompts.filter((prompt) => prompt.difficulty === difficulty).length,
+  })).filter((facet) => facet.count > 0)
+}
+
 export function draftFromPrompt(prompt: Prompt): PromptDraft {
   return {
     title: prompt.title,
@@ -129,6 +145,7 @@ export function draftFromPrompt(prompt: Prompt): PromptDraft {
     content: prompt.content,
     category: prompt.category,
     tags: prompt.tags,
+    difficulty: prompt.difficulty,
   }
 }
 
@@ -151,6 +168,7 @@ export function promptFromDraft(draft: PromptDraft): Prompt {
     content: draft.content,
     category: draft.category.trim() || UNCATEGORIZED,
     tags: draft.tags,
+    difficulty: draft.difficulty,
     favorite: false,
     copyCount: 0,
     createdAt: now,
@@ -166,6 +184,7 @@ export function applyDraft(prompt: Prompt, draft: PromptDraft): Prompt {
     content: draft.content,
     category: draft.category.trim() || UNCATEGORIZED,
     tags: draft.tags,
+    difficulty: draft.difficulty,
     updatedAt: new Date().toISOString(),
   }
 }

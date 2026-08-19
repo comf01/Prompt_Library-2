@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { extractVariables, parseTags } from '@/lib/prompt-utils'
 import type { Prompt, PromptDraft } from '@/types/prompt'
-import { CATEGORIES, UNCATEGORIZED } from '@/types/prompt'
+import { CATEGORIES, DIFFICULTIES, UNCATEGORIZED } from '@/types/prompt'
 
 const promptFormSchema = z.object({
   title: z
@@ -30,6 +30,7 @@ const promptFormSchema = z.object({
   category: z.string().trim().min(1, 'Pick or type a category.'),
   content: z.string().trim().min(1, 'A prompt needs a body.'),
   tags: z.string(),
+  difficulty: z.enum(['none', ...DIFFICULTIES]),
 })
 
 type PromptFormValues = z.infer<typeof promptFormSchema>
@@ -41,6 +42,7 @@ function toFormValues(prompt: Prompt | null): PromptFormValues {
     category: prompt?.category ?? '',
     content: prompt?.content ?? '',
     tags: prompt?.tags.join(', ') ?? '',
+    difficulty: prompt?.difficulty ?? 'none',
   }
 }
 
@@ -123,6 +125,7 @@ function PromptForm({
       content: values.content,
       category: values.category,
       tags: parseTags(values.tags),
+      difficulty: values.difficulty === 'none' ? undefined : values.difficulty,
     })
     onClose()
   })
@@ -190,6 +193,22 @@ function PromptForm({
           <p className="text-xs text-muted-foreground">
             Comma separated. Spaces become hyphens.
           </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="prompt-difficulty">Difficulty</Label>
+          <select
+            id="prompt-difficulty"
+            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm capitalize shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            {...register('difficulty')}
+          >
+            <option value="none">Not set</option>
+            {DIFFICULTIES.map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
