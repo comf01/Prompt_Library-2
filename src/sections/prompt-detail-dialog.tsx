@@ -100,7 +100,15 @@ function PromptDetailBody({
       <div className="flex flex-wrap items-center gap-1.5">
         <Badge variant="outline" className="font-normal">
           {prompt.category}
+          {prompt.subcategory && (
+            <span className="ml-1 opacity-60">· {prompt.subcategory}</span>
+          )}
         </Badge>
+        {prompt.difficulty && (
+          <Badge variant="outline" className="font-normal capitalize">
+            {prompt.difficulty}
+          </Badge>
+        )}
         {prompt.tags.map((tag) => (
           <Badge key={tag} variant="secondary" className="font-normal">
             {tag}
@@ -173,6 +181,31 @@ function PromptDetailBody({
           {rendered}
         </pre>
       </section>
+
+      {prompt.expectedOutput && (
+        <section className="space-y-2">
+          <h3 className="text-sm font-semibold">
+            What a good response includes
+          </h3>
+          <p className="rounded-lg border border-dashed p-3 text-sm leading-relaxed text-muted-foreground">
+            {prompt.expectedOutput}
+          </p>
+        </section>
+      )}
+
+      {prompt.techniques && prompt.techniques.length > 0 && (
+        <p className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+          Techniques:
+          {prompt.techniques.map((technique) => (
+            <code
+              key={technique}
+              className="rounded bg-muted px-1.5 py-0.5 font-mono"
+            >
+              {technique}
+            </code>
+          ))}
+        </p>
+      )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t pt-4">
         <p className="text-xs text-muted-foreground">

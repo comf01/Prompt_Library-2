@@ -40,6 +40,22 @@ describe('extractVariables', () => {
   it('ignores single braces and empty placeholders', () => {
     expect(extractVariables('{nope} {{}} {{ }}')).toEqual([])
   })
+
+  it('treats descriptive spaced placeholders as fillable slots', () => {
+    const content =
+      'Model: {{attributes with types, required/optional, invariants}}\n' +
+      'Resource: {{resource}}'
+    expect(extractVariables(content)).toEqual([
+      'attributes with types, required/optional, invariants',
+      'resource',
+    ])
+    expect(
+      renderPrompt(content, {
+        'attributes with types, required/optional, invariants': 'id, name',
+        resource: 'invoices',
+      }),
+    ).toBe('Model: id, name\nResource: invoices')
+  })
 })
 
 describe('renderPrompt', () => {
@@ -92,6 +108,7 @@ describe('filterPrompts', () => {
     query: '',
     category: null,
     tags: [] as string[],
+    difficulty: null,
     favoritesOnly: false,
   }
 
@@ -130,6 +147,20 @@ describe('filterPrompts', () => {
     expect(filterPrompts(prompts, { ...base, favoritesOnly: true })).toEqual([
       prompts[0],
     ])
+  })
+
+  it('filters by difficulty', () => {
+    const graded = [
+      makePrompt({ id: 'g1', difficulty: 'beginner' }),
+      makePrompt({ id: 'g2', difficulty: 'advanced' }),
+      makePrompt({ id: 'g3' }), // no difficulty set
+    ]
+    expect(
+      filterPrompts(graded, { ...base, difficulty: 'beginner' }).map(
+        (p) => p.id,
+      ),
+    ).toEqual(['g1'])
+    expect(filterPrompts(graded, { ...base, difficulty: null })).toHaveLength(3)
   })
 })
 

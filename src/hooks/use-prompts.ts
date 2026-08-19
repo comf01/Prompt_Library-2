@@ -6,6 +6,7 @@ import {
   createId,
   promptFromDraft,
   collectCategories,
+  collectDifficulties,
   collectTags,
 } from '@/lib/prompt-utils'
 import {
@@ -89,11 +90,13 @@ export function usePrompts() {
 
   const categories = useMemo(() => collectCategories(prompts), [prompts])
   const tags = useMemo(() => collectTags(prompts), [prompts])
+  const difficulties = useMemo(() => collectDifficulties(prompts), [prompts])
 
   return {
     prompts,
     categories,
     tags,
+    difficulties,
     createPrompt,
     updatePrompt,
     deletePrompt,
