@@ -92,6 +92,13 @@ clears the library, so use **Export** before you do. The export file is plain
 JSON (`{ "version": 1, "prompts": [...] }`), and import also accepts a bare
 array of prompts.
 
+## Project documents
+
+Background reports from the Fable 5 DevKit project — the capability analysis
+whose prompt-design rules this library follows, and the evaluation of the
+DevKit's 272-prompt library — live in [`docs/`](./docs/README.md), with scope
+notes on how they relate to this app.
+
 ## Tests
 
 `npm test` covers the logic worth pinning down: variable extraction and
